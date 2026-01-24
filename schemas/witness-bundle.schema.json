@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/witness-bundle.schema.json",
+  "title": "StegSeed Witness Bundle",
+  "description": "A verifiable proof package demonstrating that admissibility held at substantiation time and that evidence obligations were satisfied.",
+  "type": "object",
+  "required": [
+    "witness_id",
+    "generated_at",
+    "subject",
+    "evidence",
+    "signatures",
+    "context",
+    "hash_manifest"
+  ],
+  "properties": {
+    "witness_id": {
+      "type": "string",
+      "description": "Globally unique identifier for this witness bundle."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the witness bundle was assembled (typically at substantiation)."
+    },
+
+    "subject": {
+      "type": "object",
+      "description": "What this witness bundle substantiates.",
+      "required": ["seed_id", "seed_version", "instance_id", "entity_type", "substantiated_at"],
+      "properties": {
+        "seed_id": { "type": "string" },
+        "seed_version": { "type": "string" },
+        "instance_id": { "type": "string" },
+        "entity_type": { "type": "string" },
+        "substantiated_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+
+    "evidence": {
+      "type": "array",
+      "description": "Evidence artifacts referenced by URI and protected by hashes.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["artifact_id", "type", "uri", "hash", "hash_alg"],
+        "properties": {
+          "artifact_id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "description": "Category of evidence (inspection_report, measurement_scan, material_cert, photo, video, log, config_snapshot, approval_letter, etc.)."
+          },
+          "scope": {
+            "type": "string",
+            "description": "Optional scope tag (entity, actor, environment, system_state)."
+          },
+          "uri": { "type": "string" },
+          "hash": { "type": "string" },
+          "hash_alg": { "type": "string", "default": "sha256" },
+          "content_type": {
+            "type": "string",
+            "description": "Optional media type (e.g., application/pdf, image/jpeg)."
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "created_by": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "signatures": {
+      "type": "array",
+      "description": "Signatures attesting to admissibility and integrity of the witness bundle and/or evidence.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["signer_id", "signer_kind", "signed_at", "signature", "signature_alg"],
+        "properties": {
+          "signer_id": { "type": "string" },
+          "signer_kind": {
+            "type": "string",
+            "description": "human, ai_entity, system, inspector, fabricator, operator, regulator, etc."
+          },
+          "roles_asserted": { "type": "array", "items": { "type": "string" } },
+          "signed_at": { "type": "string", "format": "date-time" },
+          "signature_alg": { "type": "string", "description": "e.g., ed25519, ecdsa-secp256k1, rsa-pss" },
+          "signature": { "type": "string", "description": "Detached signature over hash_manifest (or canonicalized witness bundle), encoded as base64/hex." },
+          "key_ref": { "type": "string", "description": "Optional reference to public key material or certificate chain." },
+          "attestation": {
+            "type": "string",
+            "description": "Optional short claim of what is being attested (e.g., 'admissibility satisfied', 'inspection passed')."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "context": {
+      "type": "object",
+      "description": "Minimal context needed to re-verify admissibility later.",
+      "required": ["admissibility_conditions", "actor", "environment"],
+      "properties": {
+        "admissibility_conditions": {
+          "type": "array",
+          "description": "The exact conditions evaluated (StegSeed Conditions DSL nodes) at substantiation time.",
+          "items": { "$ref": "conditions-dsl.schema.json" }
+        },
+        "actor": {
+          "type": "object",
+          "required": ["actor_id", "actor_kind"],
+          "properties": {
+            "actor_id": { "type": "string" },
+            "actor_kind": { "type": "string" },
+            "roles_asserted": { "type": "array", "items": { "type": "string" } },
+            "authority_ref": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "environment": {
+          "type": "object",
+          "description": "Key/value tags relevant to jurisdiction, site, runtime, toolchain, etc.",
+          "additionalProperties": true
+        },
+        "world_state_refs": {
+          "type": "array",
+          "description": "Optional references to snapshots used for evaluation (hash-addressed).",
+          "items": {
+            "type": "object",
+            "required": ["uri", "hash", "hash_alg"],
+            "properties": {
+              "uri": { "type": "string" },
+              "hash": { "type": "string" },
+              "hash_alg": { "type": "string", "default": "sha256" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "hash_manifest": {
+      "type": "object",
+      "description": "Canonical manifest enumerating what was signed and what hashes protect the bundle and referenced artifacts.",
+      "required": ["hash_alg", "entries"],
+      "properties": {
+        "hash_alg": { "type": "string", "default": "sha256" },
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["path", "hash"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Logical path within the witness bundle (or referenced artifact URI label)."
+              },
+              "hash": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "bundle_hash": {
+          "type": "string",
+          "description": "Optional overall hash of the canonicalized witness bundle, if computed."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "notes": {
+      "type": "string",
+      "description": "Optional human notes. Must not be required for verification."
+    }
+  },
+  "additionalProperties": false
+}
