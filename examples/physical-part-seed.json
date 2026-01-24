@@ -1,0 +1,91 @@
+{
+  "seed_definition": {
+    "seed_id": "seed.physical_part.steel_valve_body",
+    "version": "0.1.0",
+    "entity_type": "physical_part",
+    "definition_hash": "sha256:REPLACE_WITH_HASH_OF_DEFINITION_PAYLOAD",
+    "description": "Example physical part: steel valve body, fabricated to spec with inspection and material certs.",
+    "admissibility": {
+      "conditions": [
+        {
+          "op": "all",
+          "conditions": [
+            {
+              "op": "time.between",
+              "args": {
+                "start": "2026-01-01T00:00:00Z",
+                "end": "2027-01-01T00:00:00Z"
+              }
+            },
+            { "op": "actor.kind_is", "args": { "kind": "fabricator" } },
+            { "op": "actor.has_role", "args": { "role": "fabrication_authority" } },
+            {
+              "op": "evidence.preexists_min",
+              "args": { "type": "material_cert", "scope": "entity", "min_count": 1 }
+            },
+            {
+              "op": "evidence.preexists_min",
+              "args": { "type": "inspection_report", "scope": "entity", "min_count": 1 }
+            }
+          ]
+        }
+      ],
+      "conflict_group": "conflict.parts.valve_body",
+      "max_instances": 1000000
+    },
+    "evidence_obligations": [
+      { "type": "material_cert", "scope": "entity", "min_count": 1 },
+      { "type": "inspection_report", "scope": "entity", "min_count": 1 },
+      { "type": "measurement_scan", "scope": "entity", "min_count": 1 },
+      { "type": "signature", "scope": "actor", "min_count": 1 }
+    ],
+    "lifecycle_rules": { "revocable": true, "supersedable": true, "retirable": true },
+    "created_at": "2026-01-24T00:00:00Z",
+    "created_by": "publisher.example.fabrication_standards_board",
+    "signature": "BASE64_OR_HEX_SIGNATURE_OVER_CANONICAL_DEFINITION"
+  },
+
+  "seed_instance": {
+    "instance_id": "inst.part.steel_valve_body.00000001",
+    "seed_id": "seed.physical_part.steel_valve_body",
+    "seed_version": "0.1.0",
+    "entity_type": "physical_part",
+    "substantiated_at": "2026-01-24T12:00:00Z",
+    "substantiated_by": {
+      "actor_id": "org.fabricator.acme",
+      "actor_kind": "fabricator",
+      "roles_asserted": ["fabrication_authority"],
+      "authority_ref": "inst.role.fabrication_authority.acme.2026"
+    },
+    "admissibility_snapshot": {
+      "evaluated_at": "2026-01-24T12:00:00Z",
+      "decision": "admissible",
+      "conditions": [
+        {
+          "op": "all",
+          "conditions": [
+            { "op": "time.between", "args": { "start": "2026-01-01T00:00:00Z", "end": "2027-01-01T00:00:00Z" } },
+            { "op": "actor.kind_is", "args": { "kind": "fabricator" } },
+            { "op": "actor.has_role", "args": { "role": "fabrication_authority" } },
+            { "op": "evidence.preexists_min", "args": { "type": "material_cert", "scope": "entity", "min_count": 1 } },
+            { "op": "evidence.preexists_min", "args": { "type": "inspection_report", "scope": "entity", "min_count": 1 } }
+          ]
+        }
+      ],
+      "world_state_refs": [
+        {
+          "uri": "vault://worldstate/plantA/2026-01-24T12:00:00Z.json",
+          "hash": "sha256:REPLACE_WITH_HASH",
+          "hash_alg": "sha256"
+        }
+      ]
+    },
+    "witness_bundle_ref": {
+      "uri": "vault://witness/witness.part.steel_valve_body.00000001.json",
+      "hash": "sha256:REPLACE_WITH_WITNESS_HASH",
+      "hash_alg": "sha256"
+    },
+    "status": "active",
+    "notes": "Example instance for documentation. Replace IDs/hashes/signatures with real values."
+  }
+}
