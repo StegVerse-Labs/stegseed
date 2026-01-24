@@ -1,0 +1,27 @@
+{
+  "name": "stegseed-schemas",
+  "version": "0.1.0",
+  "description": "Schema index for StegSeed (admissible existence kernel).",
+  "schemas": [
+    {
+      "id": "https://stegverse.org/schemas/stegseed/seed-definition.schema.json",
+      "path": "schemas/seed-definition.schema.json",
+      "version": "0.1.0"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/seed-instance.schema.json",
+      "path": "schemas/seed-instance.schema.json",
+      "version": "0.1.0"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/conditions-dsl.schema.json",
+      "path": "schemas/conditions-dsl.schema.json",
+      "version": "0.1.0"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/witness-bundle.schema.json",
+      "path": "schemas/witness-bundle.schema.json",
+      "version": "0.1.0"
+    }
+  ]
+}
