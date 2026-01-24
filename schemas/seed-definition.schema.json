@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/seed-definition.schema.json",
+  "title": "StegSeed Definition",
+  "description": "Defines a potential entity whose instantiation is governed by admissibility rules under the StegSeed model.",
+  "type": "object",
+  "required": [
+    "seed_id",
+    "version",
+    "entity_type",
+    "definition_hash",
+    "admissibility",
+    "evidence_obligations",
+    "created_at",
+    "created_by"
+  ],
+  "properties": {
+    "seed_id": {
+      "type": "string",
+      "description": "Globally unique identifier for this seed definition (immutable across versions)."
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the definition. New versions must not alter prior admissibility semantics retroactively."
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Domain classification (e.g., physical_part, ai_capability, role_definition, temporal_action, compliance_claim)."
+    },
+    "definition_hash": {
+      "type": "string",
+      "description": "Content hash of the immutable definition payload (design, spec, code, or plan)."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable summary of the entity being defined."
+    },
+    "admissibility": {
+      "type": "object",
+      "description": "Structured rules that must be satisfied for instantiation.",
+      "required": ["conditions"],
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "description": "List of admissibility predicates expressed in the StegSeed Conditions DSL.",
+          "items": {
+            "$ref": "conditions-dsl.schema.json"
+          }
+        },
+        "conflict_group": {
+          "type": "string",
+          "description": "Optional identifier for mutual exclusivity with other seeds."
+        },
+        "max_instances": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional cap on the number of valid instantiations allowed."
+        }
+      }
+    },
+    "evidence_obligations": {
+      "type": "array",
+      "description": "Artifacts that must exist in the witness bundle at substantiation time.",
+      "items": {
+        "type": "object",
+        "required": ["type", "scope"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Category of required evidence (e.g., inspection_report, signature, measurement_scan, certification)."
+          },
+          "scope": {
+            "type": "string",
+            "description": "What the evidence must apply to (entity, actor, environment, system_state)."
+          },
+          "min_count": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1,
+            "description": "Minimum number of such artifacts required."
+          }
+        }
+      }
+    },
+    "lifecycle_rules": {
+      "type": "object",
+      "description": "Optional constraints governing how instances may be superseded, revoked, or retired.",
+      "properties": {
+        "revocable": { "type": "boolean", "default": true },
+        "supersedable": { "type": "boolean", "default": true },
+        "retirable": { "type": "boolean", "default": true }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this definition was published."
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Identifier of the publishing authority or system."
+    },
+    "signature": {
+      "type": "string",
+      "description": "Digital signature attesting to the integrity and authorship of this definition."
+    }
+  },
+  "additionalProperties": false
+}
