@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/seed-instance.schema.json",
+  "title": "StegSeed Instance",
+  "description": "Represents an operationally real instantiation of a StegSeed Definition, substantiated at time t under admissibility conditions with a verifiable witness bundle.",
+  "type": "object",
+  "required": [
+    "instance_id",
+    "seed_id",
+    "seed_version",
+    "entity_type",
+    "substantiated_at",
+    "substantiated_by",
+    "admissibility_snapshot",
+    "witness_bundle_ref",
+    "status"
+  ],
+  "properties": {
+    "instance_id": {
+      "type": "string",
+      "description": "Globally unique identifier for this instantiated entity (immutable)."
+    },
+
+    "seed_id": {
+      "type": "string",
+      "description": "Identifier of the seed definition from which this instance was created."
+    },
+    "seed_version": {
+      "type": "string",
+      "description": "The exact version of the seed definition used to substantiate this instance."
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Domain classification (must match the referenced seed definition entity_type)."
+    },
+
+    "substantiated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Time of substantiation (the boundary crossing from potential to actual)."
+    },
+    "substantiated_by": {
+      "type": "object",
+      "description": "Actor and authority context that initiated substantiation.",
+      "required": ["actor_id", "actor_kind"],
+      "properties": {
+        "actor_id": { "type": "string" },
+        "actor_kind": {
+          "type": "string",
+          "description": "Type of actor (human, ai_entity, system, inspector, fabricator, operator, etc.)."
+        },
+        "roles_asserted": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Roles asserted by the actor at substantiation time (must be verifiable via witness bundle)."
+        },
+        "authority_ref": {
+          "type": "string",
+          "description": "Optional reference to a separate authority/role activation instance that grants this actor permission."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "admissibility_snapshot": {
+      "type": "object",
+      "description": "A minimal, deterministic snapshot of admissibility evaluation inputs/outputs at substantiation time. This does not replace validation; it supports reconstruction.",
+      "required": ["evaluated_at", "decision", "conditions"],
+      "properties": {
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when admissibility was evaluated (should match substantiated_at or be immediately prior)."
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["admissible", "blocked"],
+          "description": "Recorded outcome of admissibility evaluation. Instances MUST NOT be created with decision=blocked."
+        },
+        "conditions": {
+          "type": "array",
+          "description": "The evaluated conditions (StegSeed Conditions DSL expressions) as they were applied at substantiation time.",
+          "items": { "$ref": "conditions-dsl.schema.json" }
+        },
+        "world_state_refs": {
+          "type": "array",
+          "description": "Optional references to world-state snapshots used for evaluation (hash-addressed, URI-based).",
+          "items": {
+            "type": "object",
+            "required": ["uri", "hash", "hash_alg"],
+            "properties": {
+              "uri": { "type": "string" },
+              "hash": { "type": "string" },
+              "hash_alg": { "type": "string", "default": "sha256" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "witness_bundle_ref": {
+      "type": "object",
+      "description": "Reference to the witness bundle that proves admissibility and satisfies evidence obligations.",
+      "required": ["uri", "hash", "hash_alg"],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "description": "Location of the witness bundle (file, repo, s3, vault, ipfs, etc.)."
+        },
+        "hash": {
+          "type": "string",
+          "description": "Content hash of the witness bundle (or its manifest) for integrity."
+        },
+        "hash_alg": {
+          "type": "string",
+          "default": "sha256"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["active", "retired", "revoked", "superseded"],
+      "description": "Operational status of this instance. Changes in status are recorded via new admissible transitions (append-only)."
+    },
+
+    "supersedes_instance_id": {
+      "type": "string",
+      "description": "If status is active and this instance supersedes a prior one, this points to the prior instance_id."
+    },
+    "revocation": {
+      "type": "object",
+      "description": "If status is revoked, provides linkage to the revocation transition (append-only).",
+      "properties": {
+        "revoked_at": { "type": "string", "format": "date-time" },
+        "revoked_by": { "type": "string" },
+        "reason": { "type": "string" },
+        "revocation_witness_ref": {
+          "type": "object",
+          "required": ["uri", "hash", "hash_alg"],
+          "properties": {
+            "uri": { "type": "string" },
+            "hash": { "type": "string" },
+            "hash_alg": { "type": "string", "default": "sha256" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "notes": {
+      "type": "string",
+      "description": "Optional human-readable notes. Must not be required for verification."
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "revoked" } }, "required": ["status"] },
+      "then": { "required": ["revocation"] }
+    }
+  ],
+  "additionalProperties": false
+}
