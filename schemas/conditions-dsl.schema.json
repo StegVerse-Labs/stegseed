@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/conditions-dsl.schema.json",
+  "title": "StegSeed Conditions DSL",
+  "description": "A minimal, structured DSL for expressing admissibility conditions. Validators evaluate these against a world-state and time.",
+  "type": "object",
+  "required": ["op"],
+  "properties": {
+    "op": {
+      "type": "string",
+      "description": "Operator for this condition node.",
+      "enum": [
+        "all",
+        "any",
+        "not",
+
+        "time.between",
+        "time.before",
+        "time.after",
+
+        "actor.kind_is",
+        "actor.has_role",
+        "actor.authority_ref_valid",
+
+        "history.has_event",
+        "history.count_lt",
+        "history.count_lte",
+        "history.count_eq",
+        "history.count_gte",
+        "history.count_gt",
+
+        "conflict.none_active",
+
+        "evidence.preexists",
+        "evidence.preexists_min",
+
+        "env.equals",
+        "env.in_set",
+
+        "state.hash_equals"
+      ]
+    },
+
+    "args": {
+      "type": "object",
+      "description": "Operator arguments. Shape depends on `op`.",
+      "additionalProperties": true
+    },
+
+    "conditions": {
+      "type": "array",
+      "description": "Nested conditions for boolean operators (all/any/not).",
+      "items": { "$ref": "conditions-dsl.schema.json" }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": { "properties": { "op": { "const": "all" } }, "required": ["op"] },
+      "then": { "required": ["conditions"], "properties": { "conditions": { "minItems": 1 } } }
+    },
+    {
+      "if": { "properties": { "op": { "const": "any" } }, "required": ["op"] },
+      "then": { "required": ["conditions"], "properties": { "conditions": { "minItems": 1 } } }
+    },
+    {
+      "if": { "properties": { "op": { "const": "not" } }, "required": ["op"] },
+      "then": {
+        "required": ["conditions"],
+        "properties": { "conditions": { "minItems": 1, "maxItems": 1 } }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "time.between" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["start", "end"],
+            "properties": {
+              "start": { "type": "string", "format": "date-time" },
+              "end": { "type": "string", "format": "date-time" }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "time.before" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["time"],
+            "properties": { "time": { "type": "string", "format": "date-time" } },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "time.after" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["time"],
+            "properties": { "time": { "type": "string", "format": "date-time" } },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "actor.kind_is" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["kind"],
+            "properties": { "kind": { "type": "string" } },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "actor.has_role" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["role"],
+            "properties": { "role": { "type": "string" } },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "actor.authority_ref_valid" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["authority_ref"],
+            "properties": { "authority_ref": { "type": "string" } },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "history.has_event" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["event_type"],
+            "properties": {
+              "event_type": { "type": "string" },
+              "where": {
+                "type": "object",
+                "description": "Optional match filters (key/value) evaluated by validator.",
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "enum": [
+              "history.count_lt",
+              "history.count_lte",
+              "history.count_eq",
+              "history.count_gte",
+              "history.count_gt"
+            ]
+          }
+        },
+        "required": ["op"]
+      },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["event_type", "count"],
+            "properties": {
+              "event_type": { "type": "string" },
+              "count": { "type": "integer", "minimum": 0 }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "conflict.none_active" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["conflict_group"],
+            "properties": { "conflict_group": { "type": "string" } },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "evidence.preexists" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["type"],
+            "properties": { "type": { "type": "string" }, "scope": { "type": "string" } },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "evidence.preexists_min" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["type", "min_count"],
+            "properties": {
+              "type": { "type": "string" },
+              "scope": { "type": "string" },
+              "min_count": { "type": "integer", "minimum": 1 }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "env.equals" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["key", "value"],
+            "properties": { "key": { "type": "string" }, "value": {} },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "env.in_set" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["key", "values"],
+            "properties": {
+              "key": { "type": "string" },
+              "values": { "type": "array", "minItems": 1, "items": {} }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+
+    {
+      "if": { "properties": { "op": { "const": "state.hash_equals" } }, "required": ["op"] },
+      "then": {
+        "required": ["args"],
+        "properties": {
+          "args": {
+            "type": "object",
+            "required": ["hash", "hash_alg"],
+            "properties": {
+              "hash": { "type": "string" },
+              "hash_alg": { "type": "string", "default": "sha256" }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  ],
+
+  "additionalProperties": false
+}
