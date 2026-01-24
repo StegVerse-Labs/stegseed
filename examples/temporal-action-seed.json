@@ -1,0 +1,97 @@
+{
+  "seed_definition": {
+    "seed_id": "seed.ai_capability.deployment_gatekeeper",
+    "version": "0.1.0",
+    "entity_type": "ai_capability",
+    "definition_hash": "sha256:REPLACE_WITH_HASH_OF_CAPABILITY_DEFINITION",
+    "description": "AI capability: approve/execute deploy actions only when admissibility holds and evidence is present.",
+    "admissibility": {
+      "conditions": [
+        {
+          "op": "all",
+          "conditions": [
+            { "op": "actor.kind_is", "args": { "kind": "ai_entity" } },
+            { "op": "actor.has_role", "args": { "role": "deploy_executor" } },
+            {
+              "op": "time.between",
+              "args": { "start": "2026-01-01T00:00:00Z", "end": "2026-12-31T23:59:59Z" }
+            },
+            { "op": "history.has_event", "args": { "event_type": "change_request.approved" } },
+            {
+              "op": "evidence.preexists_min",
+              "args": { "type": "approval_record", "scope": "entity", "min_count": 1 }
+            },
+            {
+              "op": "evidence.preexists_min",
+              "args": { "type": "test_report", "scope": "system_state", "min_count": 1 }
+            },
+            {
+              "op": "conflict.none_active",
+              "args": { "conflict_group": "conflict.deployments.freeze_window" }
+            }
+          ]
+        }
+      ],
+      "conflict_group": "conflict.ai.deploy_gatekeeper",
+      "max_instances": 1000000
+    },
+    "evidence_obligations": [
+      { "type": "approval_record", "scope": "entity", "min_count": 1 },
+      { "type": "test_report", "scope": "system_state", "min_count": 1 },
+      { "type": "deployment_log", "scope": "system_state", "min_count": 1 },
+      { "type": "signature", "scope": "actor", "min_count": 1 }
+    ],
+    "created_at": "2026-01-24T00:00:00Z",
+    "created_by": "publisher.example.stegseed",
+    "signature": "BASE64_OR_HEX_SIGNATURE_OVER_CANONICAL_DEFINITION"
+  },
+
+  "seed_instance": {
+    "instance_id": "inst.ai_capability.deployment_gatekeeper.exec.2026-01-24T12:34:56Z",
+    "seed_id": "seed.ai_capability.deployment_gatekeeper",
+    "seed_version": "0.1.0",
+    "entity_type": "ai_capability",
+    "substantiated_at": "2026-01-24T12:34:56Z",
+    "substantiated_by": {
+      "actor_id": "ai.stegverse.ga-1",
+      "actor_kind": "ai_entity",
+      "roles_asserted": ["deploy_executor"],
+      "authority_ref": "inst.role.deploy_executor.ga-1.2026"
+    },
+    "admissibility_snapshot": {
+      "evaluated_at": "2026-01-24T12:34:56Z",
+      "decision": "admissible",
+      "conditions": [
+        {
+          "op": "all",
+          "conditions": [
+            { "op": "actor.kind_is", "args": { "kind": "ai_entity" } },
+            { "op": "actor.has_role", "args": { "role": "deploy_executor" } },
+            {
+              "op": "time.between",
+              "args": { "start": "2026-01-01T00:00:00Z", "end": "2026-12-31T23:59:59Z" }
+            },
+            { "op": "history.has_event", "args": { "event_type": "change_request.approved" } },
+            { "op": "evidence.preexists_min", "args": { "type": "approval_record", "scope": "entity", "min_count": 1 } },
+            { "op": "evidence.preexists_min", "args": { "type": "test_report", "scope": "system_state", "min_count": 1 } },
+            { "op": "conflict.none_active", "args": { "conflict_group": "conflict.deployments.freeze_window" } }
+          ]
+        }
+      ],
+      "world_state_refs": [
+        {
+          "uri": "vault://worldstate/repoX/commit_abc123.json",
+          "hash": "sha256:REPLACE_WITH_HASH",
+          "hash_alg": "sha256"
+        }
+      ]
+    },
+    "witness_bundle_ref": {
+      "uri": "vault://witness/witness.ai_capability.deployment_gatekeeper.exec.2026-01-24T12:34:56Z.json",
+      "hash": "sha256:REPLACE_WITH_WITNESS_HASH",
+      "hash_alg": "sha256"
+    },
+    "status": "active",
+    "notes": "Example capability execution instance. Replace IDs/hashes with real values."
+  }
+}
