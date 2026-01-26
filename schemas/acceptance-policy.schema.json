@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/acceptance-policy.schema.json",
+  "title": "StegSeed Acceptance Policy",
+  "description": "Defines how a system/realm accepts externally produced StegSeed instances and witness bundles, including assurance requirements, translations, constraints, and risk budgets.",
+  "type": "object",
+  "required": ["policy_id", "version", "owner", "default_rules", "created_at"],
+  "properties": {
+    "policy_id": {
+      "type": "string",
+      "description": "Unique identifier for this acceptance policy."
+    },
+    "version": {
+      "type": "string",
+      "description": "Policy version (semantic versioning recommended)."
+    },
+
+    "owner": {
+      "type": "object",
+      "description": "The system/realm publishing this policy.",
+      "required": ["realm_id", "actor"],
+      "properties": {
+        "realm_id": {
+          "type": "string",
+          "description": "Realm identifier (org/site/jurisdiction). Example: realm.diamondops.plantA"
+        },
+        "actor": { "$ref": "actor.schema.json" }
+      },
+      "additionalProperties": false
+    },
+
+    "created_at": { "type": "string", "format": "date-time" },
+    "notes": { "type": "string" },
+
+    "assurance_translation": {
+      "type": "array",
+      "description": "Optional mapping from foreign realms' assurance tiers to local tiers (or rejection).",
+      "items": {
+        "type": "object",
+        "required": ["from_realm", "mapping"],
+        "properties": {
+          "from_realm": { "type": "string" },
+          "mapping": {
+            "type": "object",
+            "required": ["A", "B", "C"],
+            "properties": {
+              "A": { "type": "string", "enum": ["A", "B", "C", "reject"] },
+              "B": { "type": "string", "enum": ["A", "B", "C", "reject"] },
+              "C": { "type": "string", "enum": ["A", "B", "C", "reject"] }
+            },
+            "additionalProperties": false
+          },
+          "requires_extra_evidence": {
+            "type": "array",
+            "description": "Optional extra evidence required for imports from this realm (in addition to the seed definition obligations).",
+            "items": { "$ref": "#/$defs/evidence_requirement" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "default_rules": {
+      "type": "object",
+      "description": "Default acceptance behavior if no entity-specific rule matches.",
+      "required": ["min_assurance_by_context", "actions"],
+      "properties": {
+        "min_assurance_by_context": { "$ref": "#/$defs/min_assurance_by_context" },
+        "actions": { "$ref": "#/$defs/actions" }
+      },
+      "additionalProperties": false
+    },
+
+    "entity_rules": {
+      "type": "array",
+      "description": "Optional overrides for specific entity types and/or specific seed_ids.",
+      "items": {
+        "type": "object",
+        "required": ["match", "min_assurance_by_context", "actions"],
+        "properties": {
+          "match": {
+            "type": "object",
+            "description": "Rule match conditions. If multiple fields present, all must match.",
+            "properties": {
+              "entity_type": { "type": "string" },
+              "seed_id": { "type": "string" },
+              "from_realm": { "type": "string" }
+            },
+            "additionalProperties": false
+          },
+          "min_assurance_by_context": { "$ref": "#/$defs/min_assurance_by_context" },
+          "actions": { "$ref": "#/$defs/actions" },
+          "risk_budgets": {
+            "type": "array",
+            "description": "Optional bounded allowances for accepting lower-assurance imports.",
+            "items": { "$ref": "#/$defs/risk_budget" }
+          },
+          "required_signers": {
+            "type": "array",
+            "description": "Optional signer constraints (e.g., require a regulator signature).",
+            "items": { "$ref": "#/$defs/required_signer" }
+          },
+          "requires_extra_evidence": {
+            "type": "array",
+            "description": "Optional extra evidence required for this rule.",
+            "items": { "$ref": "#/$defs/evidence_requirement" }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+
+  "$defs": {
+    "min_assurance_by_context": {
+      "type": "object",
+      "description": "Minimum acceptable assurance tier for each consumption context.",
+      "required": ["view", "simulation", "operational"],
+      "properties": {
+        "view": { "type": "string", "enum": ["A", "B", "C"], "description": "For dashboards/awareness only." },
+        "simulation": { "type": "string", "enum": ["A", "B", "C"], "description": "For modeling/testbeds." },
+        "operational": { "type": "string", "enum": ["A", "B", "C"], "description": "For real-world actuation/production decisions." }
+      },
+      "additionalProperties": false
+    },
+
+    "actions": {
+      "type": "object",
+      "description": "What to do when an import meets/fails requirements.",
+      "required": ["on_accept", "on_reject", "on_needs_review"],
+      "properties": {
+        "on_accept": {
+          "type": "string",
+          "enum": ["accept", "accept_and_upgrade", "accept_read_only"],
+          "description": "accept = fully accept under context rules; accept_and_upgrade = accept then re-substantiate locally at higher tier; accept_read_only = accept only for view/sim."
+        },
+        "on_needs_review": {
+          "type": "string",
+          "enum": ["queue_for_human_review", "queue_for_ai_review", "reject"],
+          "description": "What to do when policy cannot be conclusively evaluated (missing history/risk budget state/etc.)."
+        },
+        "on_reject": {
+          "type": "string",
+          "enum": ["reject", "quarantine"],
+          "description": "reject = refuse import; quarantine = hold artifact for investigation."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "risk_budget": {
+      "type": "object",
+      "description": "Bounded allowance for accepting imports at or below a given tier within a time window.",
+      "required": ["id", "context", "max_count", "window", "tier"],
+      "properties": {
+        "id": { "type": "string" },
+        "context": { "type": "string", "enum": ["view", "simulation", "operational"] },
+        "tier": { "type": "string", "enum": ["A", "B", "C"], "description": "Tier this budget applies to (typically B or C)." },
+        "max_count": { "type": "integer", "minimum": 0 },
+        "window": {
+          "type": "object",
+          "required": ["unit", "value"],
+          "properties": {
+            "unit": { "type": "string", "enum": ["day", "week", "month", "quarter", "year"] },
+            "value": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "scope": {
+          "type": "object",
+          "description": "Optional scoping (site/asset/project) for the budget.",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "required_signer": {
+      "type": "object",
+      "description": "Constraints on who must have signed the witness bundle for acceptance.",
+      "required": ["signer_kind"],
+      "properties": {
+        "signer_kind": {
+          "type": "string",
+          "enum": ["human", "ai_entity", "system", "physical_device", "organization", "regulator", "inspector"],
+          "description": "Required signer category."
+        },
+        "signer_id": {
+          "type": "string",
+          "description": "Optional exact signer identifier required."
+        },
+        "role": {
+          "type": "string",
+          "description": "Optional required role asserted by signer (e.g., regulator, inspector)."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "evidence_requirement": {
+      "type": "object",
+      "description": "Additional evidence requirement beyond what the seed definition already mandates.",
+      "required": ["type", "scope", "min_count"],
+      "properties": {
+        "type": { "type": "string" },
+        "scope": { "type": "string" },
+        "min_count": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+
+  "additionalProperties": false
+}
