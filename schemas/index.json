@@ -22,6 +22,16 @@
       "id": "https://stegverse.org/schemas/stegseed/witness-bundle.schema.json",
       "path": "schemas/witness-bundle.schema.json",
       "version": "0.1.0"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/actor.schema.json",
+      "path": "schemas/actor.schema.json",
+      "version": "0.1.0"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/authority-grant.schema.json",
+      "path": "schemas/authority-grant.schema.json",
+      "version": "0.1.0"
     }
   ]
 }
