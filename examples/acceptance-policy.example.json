@@ -1,0 +1,90 @@
+{
+  "policy_id": "acceptance.realm.retrofitcore.plantA",
+  "version": "0.1.0",
+  "owner": {
+    "realm_id": "realm.retrofitcore.plantA",
+    "actor": {
+      "actor_id": "org.retrofitcore.plantA",
+      "actor_kind": "organization",
+      "display_name": "RetrofitCore Plant A"
+    }
+  },
+  "created_at": "2026-01-26T00:00:00Z",
+  "notes": "Example acceptance policy showing default rules, translation, and a stricter entity rule for physical parts.",
+
+  "assurance_translation": [
+    {
+      "from_realm": "realm.vendor.lowcostfab",
+      "mapping": {
+        "A": "B",
+        "B": "C",
+        "C": "reject"
+      },
+      "requires_extra_evidence": [
+        { "type": "inspection_report", "scope": "entity", "min_count": 2 }
+      ]
+    }
+  ],
+
+  "default_rules": {
+    "min_assurance_by_context": {
+      "view": "C",
+      "simulation": "B",
+      "operational": "A"
+    },
+    "actions": {
+      "on_accept": "accept",
+      "on_needs_review": "queue_for_human_review",
+      "on_reject": "quarantine"
+    }
+  },
+
+  "entity_rules": [
+    {
+      "match": { "entity_type": "physical_part" },
+      "min_assurance_by_context": {
+        "view": "C",
+        "simulation": "B",
+        "operational": "A"
+      },
+      "actions": {
+        "on_accept": "accept_and_upgrade",
+        "on_needs_review": "queue_for_human_review",
+        "on_reject": "quarantine"
+      },
+      "risk_budgets": [
+        {
+          "id": "budget.physical_part.operational.tierB.monthly",
+          "context": "operational",
+          "tier": "B",
+          "max_count": 3,
+          "window": { "unit": "month", "value": 1 },
+          "scope": { "site": "plantA" }
+        }
+      ],
+      "required_signers": [
+        { "signer_kind": "inspector", "role": "inspector" }
+      ],
+      "requires_extra_evidence": [
+        { "type": "measurement_scan", "scope": "entity", "min_count": 1 }
+      ]
+    },
+
+    {
+      "match": { "seed_id": "seed.temporal_action.one_shot_rotation" },
+      "min_assurance_by_context": {
+        "view": "B",
+        "simulation": "B",
+        "operational": "A"
+      },
+      "actions": {
+        "on_accept": "accept",
+        "on_needs_review": "queue_for_human_review",
+        "on_reject": "reject"
+      },
+      "required_signers": [
+        { "signer_kind": "human", "role": "security_operator" }
+      ]
+    }
+  ]
+}
