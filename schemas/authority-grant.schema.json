@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/authority-grant.schema.json",
+  "title": "StegSeed Authority Grant",
+  "description": "A time-scoped grant of authority (role/capability) to an actor. Grants are admissible transitions with witness evidence.",
+  "type": "object",
+  "required": [
+    "grant_id",
+    "grantee",
+    "role",
+    "validity",
+    "granted_at",
+    "granted_by",
+    "witness_bundle_ref",
+    "status"
+  ],
+  "properties": {
+    "grant_id": {
+      "type": "string",
+      "description": "Unique identifier for this authority grant instance."
+    },
+
+    "grantee": {
+      "$ref": "actor.schema.json",
+      "description": "The actor receiving the authority."
+    },
+
+    "role": {
+      "type": "string",
+      "description": "Role identifier (e.g., security_operator, fabrication_authority, deploy_executor)."
+    },
+
+    "capabilities": {
+      "type": "array",
+      "description": "Optional fine-grained capability list if role implies multiple bounded powers.",
+      "items": { "type": "string" }
+    },
+
+    "scope": {
+      "type": "object",
+      "description": "Optional scoping constraints: project, site, repo, asset, jurisdiction, environment.",
+      "additionalProperties": true
+    },
+
+    "validity": {
+      "type": "object",
+      "required": ["not_before", "not_after"],
+      "properties": {
+        "not_before": { "type": "string", "format": "date-time" },
+        "not_after": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false,
+      "description": "Time window for which this authority is valid."
+    },
+
+    "granted_at": { "type": "string", "format": "date-time" },
+
+    "granted_by": {
+      "$ref": "actor.schema.json",
+      "description": "The actor issuing the grant (issuer)."
+    },
+
+    "issuer_authority_ref": {
+      "type": "string",
+      "description": "Optional reference to the issuer's own authority grant required to issue this grant."
+    },
+
+    "assurance_level": {
+      "type": "string",
+      "enum": ["A", "B", "C"],
+      "default": "A",
+      "description": "Assurance class of this grant's substantiation (proof strength)."
+    },
+
+    "witness_bundle_ref": {
+      "type": "object",
+      "required": ["uri", "hash", "hash_alg"],
+      "properties": {
+        "uri": { "type": "string" },
+        "hash": { "type": "string" },
+        "hash_alg": { "type": "string", "default": "sha256" }
+      },
+      "additionalProperties": false,
+      "description": "Proof package for the grant issuance."
+    },
+
+    "status": {
+      "type": "string",
+      "enum": ["active", "revoked", "superseded", "expired"],
+      "description": "Authority grants are append-only: they change status via new admissible transitions."
+    },
+
+    "supersedes_grant_id": {
+      "type": "string",
+      "description": "If superseded, points to the prior grant_id."
+    },
+
+    "revocation": {
+      "type": "object",
+      "properties": {
+        "revoked_at": { "type": "string", "format": "date-time" },
+        "revoked_by": { "type": "string" },
+        "reason": { "type": "string" },
+        "revocation_witness_ref": {
+          "type": "object",
+          "required": ["uri", "hash", "hash_alg"],
+          "properties": {
+            "uri": { "type": "string" },
+            "hash": { "type": "string" },
+            "hash_alg": { "type": "string", "default": "sha256" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "revoked" } }, "required": ["status"] },
+      "then": { "required": ["revocation"] }
+    }
+  ],
+  "additionalProperties": false
+}
