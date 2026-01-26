@@ -7,6 +7,7 @@
   "required": [
     "witness_id",
     "generated_at",
+    "assurance_level",
     "subject",
     "evidence",
     "signatures",
@@ -22,6 +23,13 @@
       "type": "string",
       "format": "date-time",
       "description": "When the witness bundle was assembled (typically at substantiation)."
+    },
+
+    "assurance_level": {
+      "type": "string",
+      "enum": ["A", "B", "C"],
+      "default": "A",
+      "description": "Assurance class for the substantiation proven by this witness bundle."
     },
 
     "subject": {
@@ -81,12 +89,15 @@
           "signer_id": { "type": "string" },
           "signer_kind": {
             "type": "string",
-            "description": "human, ai_entity, system, inspector, fabricator, operator, regulator, etc."
+            "description": "human, ai_entity, system, inspector, fabricator, operator, regulator, physical_device, etc."
           },
           "roles_asserted": { "type": "array", "items": { "type": "string" } },
           "signed_at": { "type": "string", "format": "date-time" },
           "signature_alg": { "type": "string", "description": "e.g., ed25519, ecdsa-secp256k1, rsa-pss" },
-          "signature": { "type": "string", "description": "Detached signature over hash_manifest (or canonicalized witness bundle), encoded as base64/hex." },
+          "signature": {
+            "type": "string",
+            "description": "Detached signature over hash_manifest (or canonicalized witness bundle), encoded as base64/hex."
+          },
           "key_ref": { "type": "string", "description": "Optional reference to public key material or certificate chain." },
           "attestation": {
             "type": "string",
@@ -109,12 +120,11 @@
         },
         "actor": {
           "type": "object",
-          "required": ["actor_id", "actor_kind"],
+          "required": ["actor", "roles_asserted"],
           "properties": {
-            "actor_id": { "type": "string" },
-            "actor_kind": { "type": "string" },
+            "actor": { "$ref": "actor.schema.json" },
             "roles_asserted": { "type": "array", "items": { "type": "string" } },
-            "authority_ref": { "type": "string" }
+            "authority_grant_ref": { "type": "string" }
           },
           "additionalProperties": false
         },
