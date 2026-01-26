@@ -9,6 +9,7 @@
     "seed_id",
     "seed_version",
     "entity_type",
+    "assurance_level",
     "substantiated_at",
     "substantiated_by",
     "admissibility_snapshot",
@@ -34,29 +35,34 @@
       "description": "Domain classification (must match the referenced seed definition entity_type)."
     },
 
+    "assurance_level": {
+      "type": "string",
+      "enum": ["A", "B", "C"],
+      "default": "A",
+      "description": "Assurance class of this instantiation (proof strength)."
+    },
+
     "substantiated_at": {
       "type": "string",
       "format": "date-time",
       "description": "Time of substantiation (the boundary crossing from potential to actual)."
     },
+
     "substantiated_by": {
       "type": "object",
-      "description": "Actor and authority context that initiated substantiation.",
-      "required": ["actor_id", "actor_kind"],
+      "description": "Actor context that initiated substantiation.",
+      "required": ["actor", "roles_asserted"],
       "properties": {
-        "actor_id": { "type": "string" },
-        "actor_kind": {
-          "type": "string",
-          "description": "Type of actor (human, ai_entity, system, inspector, fabricator, operator, etc.)."
-        },
+        "actor": { "$ref": "actor.schema.json" },
         "roles_asserted": {
           "type": "array",
+          "minItems": 1,
           "items": { "type": "string" },
-          "description": "Roles asserted by the actor at substantiation time (must be verifiable via witness bundle)."
+          "description": "Roles asserted at substantiation time (must be provable via witness bundle / authority grants)."
         },
-        "authority_ref": {
+        "authority_grant_ref": {
           "type": "string",
-          "description": "Optional reference to a separate authority/role activation instance that grants this actor permission."
+          "description": "Reference to an authority grant (grant_id) that justifies the asserted role(s)."
         }
       },
       "additionalProperties": false
@@ -129,8 +135,9 @@
 
     "supersedes_instance_id": {
       "type": "string",
-      "description": "If status is active and this instance supersedes a prior one, this points to the prior instance_id."
+      "description": "If this instance supersedes a prior one, this points to the prior instance_id."
     },
+
     "revocation": {
       "type": "object",
       "description": "If status is revoked, provides linkage to the revocation transition (append-only).",
