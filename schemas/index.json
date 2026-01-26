@@ -32,6 +32,11 @@
       "id": "https://stegverse.org/schemas/stegseed/authority-grant.schema.json",
       "path": "schemas/authority-grant.schema.json",
       "version": "0.1.0"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/acceptance-policy.schema.json",
+      "path": "schemas/acceptance-policy.schema.json",
+      "version": "0.1.0"
     }
   ]
 }
