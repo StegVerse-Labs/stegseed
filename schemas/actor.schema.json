@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/actor.schema.json",
+  "title": "StegSeed Actor",
+  "description": "A unified representation of an actor capable of substantiating transitions: human, ai_entity, system, or physical_device.",
+  "type": "object",
+  "required": ["actor_id", "actor_kind"],
+  "properties": {
+    "actor_id": {
+      "type": "string",
+      "description": "Globally unique identifier for the actor (stable). Examples: human.rigel, ai.stegverse.ga-1, device.plantA.sensor-22."
+    },
+    "actor_kind": {
+      "type": "string",
+      "enum": ["human", "ai_entity", "system", "physical_device", "organization"],
+      "description": "The category of actor."
+    },
+    "display_name": { "type": "string" },
+
+    "key_refs": {
+      "type": "array",
+      "description": "Optional references to public keys or cert chains used for signatures.",
+      "items": { "type": "string" }
+    },
+
+    "home_realm": {
+      "type": "string",
+      "description": "Optional governance realm / org / jurisdiction in which this actor is primarily registered."
+    },
+
+    "attributes": {
+      "type": "object",
+      "description": "Optional actor attributes used by admissibility (non-sensitive, non-secret).",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}
