@@ -1,310 +1,207 @@
-StegSeed DNA
+# StegSeed DNA
 
-StegSeed DNA defines the structural invariants that all StegVerse-compliant systems must inherit.
+StegSeed DNA defines the structural invariants that all StegVerse-compliant systems MUST inherit.
 
-These are not policies or preferences.
-They are architectural constraints that ensure all consequential operations obey the Admissible Existence Axiom.
-
-Each strand describes:
-	•	What must be true
-	•	Why it exists
-	•	Where it is enforced
-
-⸻
-
-Strand 1 — Admissible Existence
-
-Invariant
-Nothing becomes operationally real unless it passes admissibility at ⟨time, conditions⟩ and leaves verifiable evidence.
-
-Purpose
-Prevents ungoverned state transitions.
-
-Enforced By
-	•	seed-definition.schema.json (requires admissibility model)
-	•	seed-instance.schema.json (requires substantiation metadata)
-	•	Validators checking admissibility predicates
-
-⸻
-
-Strand 2 — Evidence Before Authority
-
-Invariant
-Authority must be demonstrated through time-valid evidence, not assumed from identity or role alone.
-
-Purpose
-Prevents silent or retroactive privilege.
-
-Enforced By
-	•	Witness bundle signature requirements
-	•	Time-scoped authority fields in instances
-	•	Validation of role validity at substantiation time
-
-⸻
-
-Strand 3 — Potential ≠ Instance
-
-Invariant
-Definitions describe what may exist. Instances record what did exist.
-
-Purpose
-Maintains clear separation between intent and consequence.
-
-Enforced By
-	•	Separate schemas for definitions and instances
-	•	Instance schema requiring reference to definition ID + version
-	•	Immutable definition records
-
-⸻
-
-Strand 4 — Witnessed Transition
-
-Invariant
-Every consequential transition must produce a witness bundle.
-
-Purpose
-Ensures transitions are inspectable and accountable.
-
-Enforced By
-	•	witness-bundle.schema.json
-	•	Mandatory witness reference in every instance
-	•	Validators rejecting instances without valid witnesses
-
-⸻
-
-Strand 5 — Local Verifiability
-
-Invariant
-The validity of an entity’s existence must be independently verifiable without centralized services.
-
-Purpose
-Ensures resilience, portability, and trust in disconnected environments.
-
-Enforced By
-	•	Content-addressed evidence references
-	•	Deterministic validation rules
-	•	Export packet formats containing full proof sets
-
-⸻
-
-Strand 6 — Append-Only History
-
-Invariant
-Instantiated entities cannot be erased; they may only be superseded, revoked, or retired through new admissible transitions.
-
-Purpose
-Preserves causality and accountability.
-
-Enforced By
-	•	No destructive update operations in schemas
-	•	Supersession and revocation modeled as new instances
-	•	Ledger/audit trail requirements
-
-⸻
-
-Strand 7 — Legitimacy Over Convenience
-
-Invariant
-If admissibility or evidence is incomplete, the transition must fail.
-
-Purpose
-Prioritizes safety and accountability over speed or usability.
-
-Enforced By
-	•	Strict validator failure on missing requirements
-	•	No “warning-only” modes for existence transitions
-	•	Required evidence obligations tied to definitions
-
-⸻
-
-Strand 8 — Uniform Grammar Across Domains
-
-Invariant
-The same admissibility and substantiation structure applies to physical, digital, human, AI, and temporal entities.
-
-Purpose
-Prevents fragmentation of governance across domains.
-
-Enforced By
-	•	Shared core schemas
-	•	Shared Conditions DSL
-	•	Shared witness structure across all instance types
-
-⸻
-
-Relationship to the Axiom
-
-The Admissible Existence Axiom states the core rule.
-StegSeed DNA encodes the mechanisms that make that rule unavoidable.
-
-StegSeed DNA
-
-StegSeed DNA defines the structural invariants that all StegVerse-compliant systems must inherit.
-
-These are not policies or preferences.
-They are architectural constraints that ensure all consequential operations obey the Admissible Existence Axiom.
+These are not policies or preferences.  
+They are architectural constraints that ensure all consequential operations obey the **Admissible Existence Axiom**.
 
 Each strand describes:
-	•	What must be true
-	•	Why it exists
-	•	Where it is enforced
+- What MUST be true  
+- Why it exists  
+- Where it is enforced  
 
-⸻
+---
 
-Strand 1 — Admissible Existence
+## Strand 0 — Validator Supremacy
 
-Invariant
+**Invariant**  
+No component may treat an entity as operationally real unless a conforming StegSeed validator attests validity.
+
+**Purpose**  
+Prevents soft bypass, implicit trust, or assumption-based activation.
+
+**Enforced By**
+- Official reference validator implementation
+- Mandatory `seed_instance_hash` binding in downstream schemas
+- Runtime rejection of unvalidated entities
+- CI validation requirements for compliant systems
+
+---
+
+## Strand 1 — Admissible Existence
+
+**Invariant**  
 Nothing becomes operationally real unless it passes admissibility at ⟨time, conditions⟩ and leaves verifiable evidence.
 
-Purpose
+**Purpose**  
 Prevents ungoverned state transitions.
 
-Enforced By
-	•	seed-definition.schema.json (requires admissibility model)
-	•	seed-instance.schema.json (requires substantiation metadata)
-	•	Validators checking admissibility predicates
+**Enforced By**
+- `seed-definition.schema.json` (requires admissibility model)
+- `seed-instance.schema.json` (requires substantiation metadata)
+- Validators MUST evaluate admissibility predicates deterministically
 
-⸻
+---
 
-Strand 2 — Evidence Before Authority
+## Strand 2 — Evidence Before Authority
 
-Invariant
-Authority must be demonstrated through time-valid evidence, not assumed from identity or role alone.
+**Invariant**  
+Authority MUST be demonstrated through time-valid evidence, not assumed from identity or role alone.
 
-Purpose
-Prevents silent or retroactive privilege.
+**Purpose**  
+Prevents silent, inherited, or retroactive privilege.
 
-Enforced By
-	•	Witness bundle signature requirements
-	•	Time-scoped authority fields in instances
-	•	Validation of role validity at substantiation time
+**Enforced By**
+- Witness bundle signature requirements
+- Time-scoped authority fields in instances
+- Validators MUST verify role validity at substantiation time
 
-⸻
+---
 
-Strand 3 — Potential ≠ Instance
+## Strand 3 — Potential ≠ Instance
 
-Invariant
+**Invariant**  
 Definitions describe what may exist. Instances record what did exist.
 
-Purpose
-Maintains clear separation between intent and consequence.
+**Purpose**  
+Maintains separation between intent and consequence.
 
-Enforced By
-	•	Separate schemas for definitions and instances
-	•	Instance schema requiring reference to definition ID + version
-	•	Immutable definition records
+**Enforced By**
+- Separate schemas for definitions and instances
+- Instance schema MUST reference definition ID + version hash
+- Immutable definition records
 
-⸻
+---
 
-Strand 4 — Witnessed Transition
+## Strand 4 — Witnessed Transition
 
-Invariant
-Every consequential transition must produce a witness bundle.
+**Invariant**  
+Every consequential transition MUST produce a valid witness bundle.
 
-Purpose
+**Purpose**  
 Ensures transitions are inspectable and accountable.
 
-Enforced By
-	•	witness-bundle.schema.json
-	•	Mandatory witness reference in every instance
-	•	Validators rejecting instances without valid witnesses
+**Enforced By**
+- `witness-bundle.schema.json`
+- Mandatory witness reference in every instance
+- Validators MUST reject instances lacking a valid witness bundle
 
-⸻
+---
 
-Strand 5 — Local Verifiability
+## Strand 5 — Local Verifiability
 
-Invariant
-The validity of an entity’s existence must be independently verifiable without centralized services.
+**Invariant**  
+The validity of an entity’s existence MUST be independently verifiable without centralized services.
 
-Purpose
+**Purpose**  
 Ensures resilience, portability, and trust in disconnected environments.
 
-Enforced By
-	•	Content-addressed evidence references
-	•	Deterministic validation rules
-	•	Export packet formats containing full proof sets
+**Enforced By**
+- Content-addressed evidence references
+- Deterministic validation rules
+- Export packet formats containing complete proof sets
+- No validator dependency on external network services
 
-⸻
+---
 
-Strand 6 — Append-Only History
+## Strand 6 — Append-Only History
 
-Invariant
-Instantiated entities cannot be erased; they may only be superseded, revoked, or retired through new admissible transitions.
+**Invariant**  
+Instantiated entities MUST NOT be erased. They may only be superseded, revoked, or retired through new admissible transitions.
 
-Purpose
+**Purpose**  
 Preserves causality and accountability.
 
-Enforced By
-	•	No destructive update operations in schemas
-	•	Supersession and revocation modeled as new instances
-	•	Ledger/audit trail requirements
+**Enforced By**
+- No destructive update operations in schemas
+- Supersession and revocation modeled as new instances
+- Ledger/audit trail requirements
+- Validators rejecting mutation of historical records
 
-⸻
+---
 
-Strand 7 — Legitimacy Over Convenience
+## Strand 7 — Legitimacy Over Convenience
 
-Invariant
-If admissibility or evidence is incomplete, the transition must fail.
+**Invariant**  
+If admissibility or evidence is incomplete, the transition MUST fail.
 
-Purpose
-Prioritizes safety and accountability over speed or usability.
+**Purpose**  
+Prioritizes safety and accountability over speed.
 
-Enforced By
-	•	Strict validator failure on missing requirements
-	•	No “warning-only” modes for existence transitions
-	•	Required evidence obligations tied to definitions
+**Enforced By**
+- Strict validator failure on missing or invalid requirements
+- No “warning-only” existence transitions
+- Required evidence obligations tied to definitions
 
-⸻
+---
 
-Strand 8 — Uniform Grammar Across Domains
+## Strand 8 — Uniform Grammar Across Domains
 
-Invariant
-The same admissibility and substantiation structure applies to physical, digital, human, AI, and temporal entities.
+**Invariant**  
+The same admissibility and substantiation structure MUST apply to physical, digital, human, AI, and temporal entities.
 
-Purpose
-Prevents fragmentation of governance across domains.
+**Purpose**  
+Prevents governance fragmentation.
 
-Enforced By
-	•	Shared core schemas
-	•	Shared Conditions DSL
-	•	Shared witness structure across all instance types
+**Enforced By**
+- Shared core schemas
+- Shared Conditions DSL
+- Shared witness bundle structure across all instance types
+- Cross-domain validation consistency checks
 
-⸻
+---
 
-Relationship to the Axiom
+## Strand 9 — Policy-Time Binding
 
-The Admissible Existence Axiom states the core rule.
+**Invariant**  
+An instance MUST bind to the exact definition version and admissibility rules in force at time t.
+
+**Purpose**  
+Prevents retroactive reinterpretation of history.
+
+**Enforced By**
+- Definition version hash embedded in instance
+- Conditions DSL version field
+- Validator refusal to re-evaluate prior instances under newer rule sets
+- Immutable policy-version references within instances
+
+---
+
+# Relationship to the Axiom
+
+The **Admissible Existence Axiom** defines the core rule.
+
 StegSeed DNA encodes the mechanisms that make that rule unavoidable.
 
 ```
-Axiom
-DNA
-Principle
-Structure
-Law
-Enforcement patterns
-Meaning
-Implementation invariants
+Axiom -> Law
+DNA -> Enforcement Pattern
+Principle -> Structural Invariant
+Meaning -> Implementation Constraint
 ```
 
-Compliance Implication
+---
 
-A system claiming StegVerse alignment must demonstrate that its operations inherit and enforce all eight DNA strands.
+# Compliance Implication
+
+A system claiming StegVerse alignment MUST demonstrate that its operations inherit and enforce all StegSeed DNA strands.
 
 If a system allows:
-	•	unverified authority
-	•	silent state creation
-	•	non-witnessed transitions
-	•	deletable history
+- Unverified authority  
+- Silent state creation  
+- Non-witnessed transitions  
+- Retroactive reinterpretation  
+- Deletable history  
 
-…it is not StegSeed-compliant.
+…it is NOT StegSeed-compliant.
 
-⸻
+---
 
-Summary
+# Summary
 
-StegSeed DNA ensures that every part of the ecosystem grows from the same genetic rules:
+StegSeed DNA ensures every part of the ecosystem grows from the same genetic rules:
 
-Existence requires admissibility.
-Admissibility requires evidence.
-Evidence preserves history.
+**Existence requires admissibility.**  
+**Admissibility requires evidence.**  
+**Evidence preserves history.**  
+**History cannot be rewritten.**
