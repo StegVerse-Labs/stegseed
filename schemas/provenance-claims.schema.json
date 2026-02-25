@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/provenance-claims.schema.json",
+  "title": "StegSeed Provenance Claims",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["host_platform", "repo", "commit_sha"],
+  "properties": {
+    "host_platform": {
+      "type": "string",
+      "enum": ["github", "gitlab", "jenkins", "k8s", "local", "unknown"]
+    },
+    "repo": { "type": "string" },
+    "ref": { "type": "string" },
+    "commit_sha": { "type": "string" },
+    "run_id": { "type": "string" },
+    "pipeline_id": { "type": "string" },
+    "workflow": { "type": "string" },
+    "actor": { "type": "string" },
+    "service_account": { "type": "string" },
+    "runner_name": { "type": "string" },
+    "runner_digest": { "type": "string" },
+    "workspace_digest": { "type": "string" },
+    "extra": { "type": "object" }
+  }
+}
