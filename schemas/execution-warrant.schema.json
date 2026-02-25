@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/execution-warrant.schema.json",
+  "title": "StegSeed Execution Warrant",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "warrant_id",
+    "issued_at",
+    "expires_at",
+    "issuer",
+    "subject",
+    "scope",
+    "policy",
+    "claims",
+    "signature"
+  ],
+  "properties": {
+    "warrant_id": {
+      "type": "string",
+      "description": "Unique identifier for this warrant (UUID/ULID recommended).",
+      "minLength": 8
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 issuance time (UTC recommended)."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO8601 expiry time. Warrants MUST be short-lived."
+    },
+    "issuer": {
+      "type": "string",
+      "description": "Issuer identifier that maps to TV warrant issuer registry."
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "What kind of subject is authorized (e.g., workflow_run, service_account, human)."
+        },
+        "id": {
+          "type": "string",
+          "description": "Subject identity (e.g., github:<owner>/<repo>:<workflow>:<run_id>)."
+        },
+        "notes": { "type": "string" }
+      },
+      "description": "Who/what is authorized to execute."
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "target", "module"],
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "Action authorized by this warrant (e.g., run_agent)."
+        },
+        "target": {
+          "type": "string",
+          "description": "Target name (e.g., GrantFinder-001)."
+        },
+        "module": {
+          "type": "string",
+          "description": "StegVerse module/repo canonical name (e.g., StegVerse-Labs/StegAgents)."
+        },
+        "permissions_intent": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional declared permissions intent (least privilege declarations)."
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundle_sha256"],
+      "properties": {
+        "bundle_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "SHA256 of the TV policy bundle this warrant is pinned to."
+        },
+        "bundle_version": {
+          "type": "string",
+          "description": "Optional version string of policy bundle (semantic recommended)."
+        },
+        "tv_chainlog_ref": {
+          "type": "string",
+          "description": "Optional chainlog reference (line hash, export id, etc.)"
+        }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "description": "Provenance claims used for policy + verification (host/platform).",
+      "additionalProperties": false,
+      "required": ["host_platform", "repo", "commit_sha"],
+      "properties": {
+        "host_platform": {
+          "type": "string",
+          "enum": ["github", "gitlab", "jenkins", "k8s", "local", "unknown"]
+        },
+        "repo": { "type": "string" },
+        "ref": { "type": "string" },
+        "commit_sha": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{7,40}$"
+        },
+        "run_id": { "type": "string" },
+        "workflow": { "type": "string" },
+        "actor": { "type": "string" },
+        "runner_name": { "type": "string" },
+        "runner_digest": { "type": "string" },
+        "workspace_digest": { "type": "string" },
+        "extra": { "type": "object" }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alg", "public_key_id", "sig_b64"],
+      "properties": {
+        "alg": {
+          "type": "string",
+          "enum": ["ed25519"],
+          "description": "Signature algorithm."
+        },
+        "public_key_id": {
+          "type": "string",
+          "description": "Key id used to find the issuer public key (TV registry)."
+        },
+        "sig_b64": {
+          "type": "string",
+          "description": "Base64 signature over canonical payload bytes."
+        }
+      }
+    }
+  }
+}
