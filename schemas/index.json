@@ -37,6 +37,18 @@
       "id": "https://stegverse.org/schemas/stegseed/acceptance-policy.schema.json",
       "path": "schemas/acceptance-policy.schema.json",
       "version": "0.1.0"
-    }
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/execution-warrant.schema.json",
+      "path": "schemas/execution-warrant.schema.json"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/provenance-claims.schema.json",
+      "path": "schemas/provenance-claims.schema.json"
+    },
+    {
+      "id": "https://stegverse.org/schemas/stegseed/policy-bundle-ref.schema.json",
+      "path": "schemas/policy-bundle-ref.schema.json"
+    },
   ]
 }
