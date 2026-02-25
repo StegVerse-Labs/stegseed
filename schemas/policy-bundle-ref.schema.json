@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stegverse.org/schemas/stegseed/policy-bundle-ref.schema.json",
+  "title": "StegSeed Policy Bundle Reference",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["bundle_sha256"],
+  "properties": {
+    "bundle_sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
+    "bundle_version": { "type": "string" },
+    "tv_chainlog_ref": { "type": "string" }
+  }
+}
